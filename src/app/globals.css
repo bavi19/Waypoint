@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.hero {
+  position: relative;
+  min-height: 420px;
+  background-image: url("/assets/joshua-tree-operations.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(24, 32, 28, 0.92), rgba(24, 32, 28, 0.64) 42%, rgba(24, 32, 28, 0.2));
+}
+
+.panel {
+  border: 1px solid rgba(65, 95, 69, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 252, 246, 0.92);
+  box-shadow: 0 18px 45px rgba(24, 32, 28, 0.1);
+  padding: 16px;
+}
+
+.iconButton {
+  display: inline-grid;
+  height: 36px;
+  width: 36px;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(65, 95, 69, 0.2);
+  background: white;
+  color: #415f45;
+}
+
+.quickButton {
+  max-width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(65, 95, 69, 0.18);
+  background: #ffffff;
+  padding: 7px 10px;
+  color: #385065;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chatWindow {
+  height: 430px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(65, 95, 69, 0.14);
+  background: #f4efe4;
+  padding: 14px;
+}
+
+.emptyState {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  text-align: center;
+  color: #6c6a62;
+  font-size: 14px;
+}
+
+.bubbleRow {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.bubble {
+  max-width: min(88%, 680px);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.userBubble {
+  background: #385065;
+  color: white;
+}
+
+.hermesBubble {
+  border: 1px solid rgba(65, 95, 69, 0.14);
+  background: white;
+  color: #18201c;
+}
+
+.messageInput {
+  min-height: 54px;
+  flex: 1;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid rgba(65, 95, 69, 0.18);
+  background: white;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.messageInput:focus {
+  border-color: #415f45;
+  box-shadow: 0 0 0 3px rgba(65, 95, 69, 0.14);
+}
+
+.sendButton {
+  display: inline-grid;
+  width: 52px;
+  place-items: center;
+  border-radius: 8px;
+  background: #415f45;
+  color: white;
+}
+
+.sendButton:disabled {
+  opacity: 0.55;
+}
+
+.stateCell {
+  min-height: 72px;
+  border-radius: 8px;
+  border: 1px solid rgba(65, 95, 69, 0.13);
+  background: #fffaf1;
+  padding: 10px;
+}
+
+.stateLabel {
+  margin-bottom: 4px;
+  color: #777268;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.checkItem {
+  display: flex;
+  min-height: 40px;
+  align-items: flex-start;
+  gap: 8px;
+  border-radius: 8px;
+  background: #f4efe4;
+  padding: 9px;
+  color: #353a34;
+}
+
+.toolLog {
+  border-radius: 8px;
+  border: 1px solid rgba(56, 80, 101, 0.15);
+  background: #fbfcfb;
+  padding: 10px;
+}
+
+.toolLog pre,
+.brief {
+  margin-top: 8px;
+  max-height: 280px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border-radius: 8px;
+  background: #18201c;
+  padding: 12px;
+  color: #eef5ef;
+  font-size: 12px;
+  line-height: 1.55;
+}
