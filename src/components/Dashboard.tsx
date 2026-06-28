@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, Copy, Info, MessageCircle, Mountain, RefreshCcw, Send } from "lucide-react";
 import type { ConversationMessage, ExpeditionState, ToolCallLog } from "@/lib/types";
 
@@ -59,9 +59,12 @@ function BackgroundSlideshow({ activeIndex, dimmed = false }: { activeIndex: num
 
 function OnlineBadge() {
   return (
-    <div className="onlineBadge">
-      <span />
-      Hermes agent online
+    <div className="statusStack">
+      <div className="onlineBadge">
+        <span />
+        Powered by Nous
+      </div>
+      <p>Hermes agent online</p>
     </div>
   );
 }
@@ -82,11 +85,14 @@ export function Dashboard() {
   const [message, setMessage] = useState("");
   const [view, setView] = useState<ViewMode>("landing");
   const [activeImage, setActiveImage] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [howVisible, setHowVisible] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showScript, setShowScript] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [copied, setCopied] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const howRef = useRef<HTMLElement | null>(null);
 
   const state = snapshot?.state;
   const summary = useMemo(() => briefSummary(state), [state]);
@@ -106,6 +112,35 @@ export function Dashboard() {
     }, 6200);
 
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const updateScroll = () => {
+      const progress = Math.min(window.scrollY / Math.max(window.innerHeight * 0.82, 1), 1);
+      setScrollProgress(Number(progress.toFixed(3)));
+    };
+
+    updateScroll();
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    return () => window.removeEventListener("scroll", updateScroll);
+  }, []);
+
+  useEffect(() => {
+    const section = howRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHowVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.24 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -150,8 +185,18 @@ export function Dashboard() {
   }
 
   if (view === "landing") {
+    const landingStyle = {
+      "--bg-scale": 1 + scrollProgress * 0.035,
+      "--hero-opacity": Math.max(0, 1 - scrollProgress * 1.25),
+      "--hero-shift": `${scrollProgress * -42}px`,
+      "--hero-blur": `${scrollProgress * 4}px`
+    } as CSSProperties;
+
     return (
-      <main className="immersiveShell">
+      <main
+        className={`immersiveShell ${scrollProgress > 0.64 ? "composerHidden" : ""}`}
+        style={landingStyle}
+      >
         <BackgroundSlideshow activeIndex={activeImage} />
 
         <header className="landingNav">
@@ -179,10 +224,18 @@ export function Dashboard() {
                 Start demo chat
               </button>
               <a className="secondaryAction" href="#how-it-works">
-                How it works {">"}
+                How it works {"\u2192"}
               </a>
             </div>
           </div>
+
+          <button
+            className="downArrow"
+            onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            title="Scroll to how Waypoint works"
+          >
+            {"\u2193"}
+          </button>
 
           <form
             className="landingComposer"
@@ -198,13 +251,19 @@ export function Dashboard() {
           </form>
         </section>
 
-        <section id="how-it-works" className="immersiveHow">
+        <section id="how-it-works" ref={howRef} className={`immersiveHow ${howVisible ? "visible" : ""}`}>
+          <div className="howIntro">
+            <p>Simple, text-native expedition planning</p>
+            <h2>How Waypoint works</h2>
+          </div>
           {[
-            ["Text naturally", "Ask for a trip the way you would text a friend."],
-            ["Hermes plans", "Waypoint checks routes, conditions, permits, gear, and budget."],
-            ["Approve first", "Payment waits for your yes, then the final brief arrives."]
-          ].map(([title, body]) => (
-            <article key={title}>
+            ["Text your trip idea", "Tell Waypoint where you want to go, when, and your group size."],
+            ["Hermes plans the route", "The agent checks routes, conditions, permits, gear, and risk."],
+            ["Approve payment", "Waypoint asks before checkout or vendor booking."],
+            ["Get your trip brief", "Receive a final expedition plan with map links, gear, safety, and next steps."]
+          ].map(([title, body], index) => (
+            <article key={title} className="howCard" style={{ "--card-index": index } as CSSProperties}>
+              <span>{index + 1}</span>
               <h2>{title}</h2>
               <p>{body}</p>
             </article>
