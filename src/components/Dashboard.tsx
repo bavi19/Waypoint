@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, Copy, Info, MessageCircle, RefreshCcw, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Copy, Info, MessageCircle, Mountain, RefreshCcw, Send } from "lucide-react";
 import type { ConversationMessage, ExpeditionState, ToolCallLog } from "@/lib/types";
 
 interface Snapshot {
@@ -13,6 +14,8 @@ interface Snapshot {
 
 type ViewMode = "landing" | "chat";
 
+const backgroundImages = Array.from({ length: 18 }, (_, index) => `/backgrounds/waypoint-bg-${String(index + 1).padStart(2, "0")}.jpg`);
+
 const demoMessages = [
   "Plan me a weekend backpacking trip in Joshua Tree.",
   "Upcoming weekend, group of 2, intermediate, budget $250. We own a tent, backpack, sleeping bag, and stove. We will drive.",
@@ -20,18 +23,6 @@ const demoMessages = [
   "approve",
   "payment complete"
 ];
-
-function progressFromState(state?: ExpeditionState) {
-  return [
-    { label: "Planning route", active: Boolean(state?.destination || state?.proposedRoutes.length || state?.selectedRoute) },
-    { label: "Checking conditions", active: state?.weatherRisk.status === "checked" },
-    { label: "Reviewing permits", active: Boolean(state?.permits.status && state.permits.status !== "unknown") },
-    { label: "Finding gear", active: Boolean(state?.packingList.length || state?.missingGear.length) },
-    { label: "Awaiting approval", active: state?.paymentStatus === "approval_requested" },
-    { label: "Payment ready", active: state?.paymentStatus === "checkout_created" || state?.paymentStatus === "paid" },
-    { label: "Brief complete", active: Boolean(state?.finalBrief) }
-  ];
-}
 
 function briefSummary(state?: ExpeditionState) {
   if (!state) return [];
@@ -47,28 +38,30 @@ function briefSummary(state?: ExpeditionState) {
   ];
 }
 
-function LandingPhone() {
+function BackgroundSlideshow({ activeIndex, dimmed = false }: { activeIndex: number; dimmed?: boolean }) {
   return (
-    <div className="phoneFrame landingPhone" aria-hidden="true">
-      <div className="phoneSpeaker" />
-      <div className="phoneHeader">
-        <div>
-          <p className="phoneTitle">Waypoint</p>
-          <p className="phoneStatus">Hermes agent online</p>
-        </div>
-      </div>
-      <div className="phoneMessages">
-        <div className="messageBubble userText">Plan me a weekend backpacking trip in Joshua Tree.</div>
-        <div className="messageBubble waypointText">
-          I’ll plan routes, check conditions, review permits, find missing gear, and ask before payment.
-        </div>
-        <div className="messageBubble waypointText compact">First, what dates, group size, experience level, and budget?</div>
-        <div className="typingPreview">
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
+    <div className={`backgroundSlideshow ${dimmed ? "dimmed" : ""}`} aria-hidden="true">
+      {backgroundImages.map((src, index) => (
+        <Image
+          key={src}
+          src={src}
+          alt=""
+          fill
+          priority={index === 0}
+          sizes="100vw"
+          className={`backgroundImage ${activeIndex === index ? "active" : ""}`}
+        />
+      ))}
+      <div className="photoOverlay" />
+    </div>
+  );
+}
+
+function OnlineBadge() {
+  return (
+    <div className="onlineBadge">
+      <span />
+      Hermes agent online
     </div>
   );
 }
@@ -88,6 +81,7 @@ export function Dashboard() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [message, setMessage] = useState("");
   const [view, setView] = useState<ViewMode>("landing");
+  const [activeImage, setActiveImage] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [showScript, setShowScript] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
@@ -95,7 +89,6 @@ export function Dashboard() {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const state = snapshot?.state;
-  const progress = useMemo(() => progressFromState(state), [state]);
   const summary = useMemo(() => briefSummary(state), [state]);
 
   async function loadSnapshot() {
@@ -105,6 +98,14 @@ export function Dashboard() {
 
   useEffect(() => {
     loadSnapshot();
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveImage((current) => (current + 1) % backgroundImages.length);
+    }, 6200);
+
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -150,45 +151,60 @@ export function Dashboard() {
 
   if (view === "landing") {
     return (
-      <main className="appShell">
-        <nav className="topNav">
-          <div className="brandMark">
-            <MessageCircle size={18} />
-          </div>
-          <span>Waypoint</span>
-        </nav>
+      <main className="immersiveShell">
+        <BackgroundSlideshow activeIndex={activeImage} />
 
-        <section className="landingHero">
-          <div className="heroCopy">
-            <div className="eyebrow">
-              <Sparkles size={15} />
-              Powered by Hermes
-            </div>
-            <h1>Text Waypoint. Get a trip planned.</h1>
+        <header className="landingNav">
+          <div className="wordmark">
+            <Mountain size={20} />
+            <span>WAYPOINT</span>
+          </div>
+          <OnlineBadge />
+        </header>
+
+        <section className="immersiveHero">
+          <div className="heroCenter">
+            <h1>
+              Text Waypoint.
+              <br />
+              Get your trip planned.
+            </h1>
             <p>
               Waypoint is an iMessage-first expedition agent that plans routes, checks conditions, handles gear,
               asks before payment, and sends you a final trip brief.
             </p>
             <div className="heroActions">
               <button className="primaryAction" onClick={() => setView("chat")}>
+                <MessageCircle size={19} />
                 Start demo chat
               </button>
               <a className="secondaryAction" href="#how-it-works">
-                How it works
+                How it works {">"}
               </a>
             </div>
           </div>
 
-          <LandingPhone />
+          <form
+            className="landingComposer"
+            onSubmit={(event) => {
+              event.preventDefault();
+              sendMessage();
+            }}
+          >
+            <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Text Waypoint..." />
+            <button type="submit" disabled={isSending || !message.trim()} title="Send to Waypoint">
+              <Send size={20} />
+            </button>
+          </form>
         </section>
 
-        <section id="how-it-works" className="howItWorks">
+        <section id="how-it-works" className="immersiveHow">
           {[
-            ["Text the idea", "Ask for a weekend backpacking trip like you would text a friend."],
-            ["Hermes works", "The agent plans, checks conditions, reviews permits, and finds gear."],
-            ["Approve payment", "Waypoint asks first, then creates checkout and sends the brief."]
+            ["Text naturally", "Ask for a trip the way you would text a friend."],
+            ["Hermes plans", "Waypoint checks routes, conditions, permits, gear, and budget."],
+            ["Approve first", "Payment waits for your yes, then the final brief arrives."]
           ].map(([title, body]) => (
-            <article key={title} className="simpleCard">
+            <article key={title}>
               <h2>{title}</h2>
               <p>{body}</p>
             </article>
@@ -200,12 +216,13 @@ export function Dashboard() {
 
   return (
     <main className="chatShell">
+      <BackgroundSlideshow activeIndex={activeImage} dimmed />
+
       <section className="chatApp">
         <header className="chatTopBar">
           <button className="roundIcon" onClick={() => setView("landing")} title="Back to landing">
             <ArrowLeft size={18} />
           </button>
-          <div className="agentAvatar">W</div>
           <div className="agentTitle">
             <h1>Waypoint</h1>
             <p>Hermes agent online</p>
@@ -214,15 +231,6 @@ export function Dashboard() {
             <RefreshCcw size={17} />
           </button>
         </header>
-
-        <div className="progressRail" aria-label="Agent progress">
-          {progress.map((item) => (
-            <span key={item.label} className={`progressChip ${item.active ? "active" : ""}`}>
-              {item.active && <Check size={13} />}
-              {item.label}
-            </span>
-          ))}
-        </div>
 
         <div className="chatOnlyWindow">
           {!snapshot?.messages.length ? (
