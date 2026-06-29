@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-const backendUrl = process.env.WAYPOINT_BACKEND_URL || "http://localhost:3000/api/relay/imessage";
+const backendUrl = process.env.JUNKO_BACKEND_URL || "http://localhost:3000/api/relay/imessage";
 const allowedSender = process.env.IMESSAGE_ALLOWED_SENDER;
 const messagesDbPath = process.env.IMESSAGE_CHAT_DB || path.join(homedir(), "Library", "Messages", "chat.db");
 const pollMs = Number(process.env.IMESSAGE_POLL_MS || 3500);
@@ -80,7 +80,7 @@ async function forwardToHermes(row: IncomingMessageRow) {
   });
 
   if (!response.ok) {
-    throw new Error(`Hermes backend rejected message: ${response.status} ${await response.text()}`);
+    throw new Error(`Junko backend rejected message: ${response.status} ${await response.text()}`);
   }
 
   const payload = (await response.json()) as { recipient: string; text: string };
@@ -95,7 +95,7 @@ async function poll() {
 
 async function main() {
   requireMacRelayConfig();
-  console.log(`Waypoint Hermes demo relay watching ${allowedSender}`);
+  console.log(`Junko demo relay watching ${allowedSender}`);
   console.log(`Forwarding to ${backendUrl}`);
 
   setInterval(() => {

@@ -1,6 +1,6 @@
 # Demo-Only iMessage Relay
 
-This relay is intentionally local and demo-only. It polls the macOS Messages SQLite database for an allowlisted sender, forwards the text to Waypoint Hermes, and sends Hermes' response back through the Messages app with AppleScript.
+This relay is intentionally local and demo-only. It polls the macOS Messages SQLite database for an allowlisted sender, forwards the text to Junko, and sends Junko's response back through the Messages app with AppleScript.
 
 ## Requirements
 
@@ -19,9 +19,9 @@ IMESSAGE_ALLOWED_SENDER="+15555550123" npm run imessage:relay
 Optional variables:
 
 ```bash
-WAYPOINT_BACKEND_URL=http://localhost:3000/api/relay/imessage
+JUNKO_BACKEND_URL=http://localhost:3000/api/relay/imessage
 IMESSAGE_CHAT_DB="$HOME/Library/Messages/chat.db"
 IMESSAGE_POLL_MS=3500
 ```
 
-If this relay fails during the hackathon demo, use the web chat simulator on the dashboard. It routes through the same Hermes orchestrator and tools.
+If this relay fails during the hackathon demo, use the web chat simulator. It routes through the same Hermes orchestrator and tools.

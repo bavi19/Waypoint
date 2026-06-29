@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, Copy, Info, MessageCircle, Mountain, RefreshCcw, Send } from "lucide-react";
+import { ArrowLeft, Check, Copy, Info, MessageCircle, RefreshCcw, Send } from "lucide-react";
 import type { ConversationMessage, ExpeditionState, ToolCallLog } from "@/lib/types";
 
 interface Snapshot {
@@ -38,6 +38,18 @@ function briefSummary(state?: ExpeditionState) {
   ];
 }
 
+function progressTrail(state?: ExpeditionState) {
+  const base = ["Planning the route"];
+  if (!state) return base;
+  if (state.destination) base.push("Checking trail conditions");
+  if (state.proposedRoutes.length || state.selectedRoute) base.push("Looking for permits");
+  if (state.packingList.length || state.missingGear.length) base.push("Packing your itinerary");
+  if (state.paymentStatus === "approval_requested") base.push("Waiting for your go-ahead");
+  if (state.paymentStatus === "checkout_created") base.push("Payment link ready");
+  if (state.finalBrief) base.push("Adventure brief packed");
+  return base;
+}
+
 function BackgroundSlideshow({ activeIndex, dimmed = false }: { activeIndex: number; dimmed?: boolean }) {
   return (
     <div className={`backgroundSlideshow ${dimmed ? "dimmed" : ""}`} aria-hidden="true">
@@ -64,16 +76,29 @@ function OnlineBadge() {
         <span />
         Powered by Nous
       </div>
-      <p>Hermes agent online</p>
+      <p>Junko is online</p>
     </div>
+  );
+}
+
+function JunkoLogo({ size = 34 }: { size?: number }) {
+  return (
+    <Image
+      src="/assets/junko-logo.png"
+      alt="Junko"
+      width={size}
+      height={size}
+      className="junkoLogo"
+      priority={size > 40}
+    />
   );
 }
 
 function ChatBubble({ message }: { message: ConversationMessage }) {
   const isUser = message.role === "user";
   return (
-    <div className={`chatBubbleRow ${isUser ? "fromUser" : "fromWaypoint"}`}>
-      <div className={`messageBubble ${isUser ? "userText" : "waypointText"}`}>
+    <div className={`chatBubbleRow ${isUser ? "fromUser" : "fromJunko"}`}>
+      <div className={`messageBubble ${isUser ? "userText" : "junkoText"}`}>
         <div className="whitespace-pre-wrap">{message.content}</div>
       </div>
     </div>
@@ -96,6 +121,7 @@ export function Dashboard() {
 
   const state = snapshot?.state;
   const summary = useMemo(() => briefSummary(state), [state]);
+  const progress = useMemo(() => progressTrail(state), [state]);
 
   async function loadSnapshot() {
     const response = await fetch("/api/hermes/message", { cache: "no-store" });
@@ -201,8 +227,8 @@ export function Dashboard() {
 
         <header className="landingNav">
           <div className="wordmark">
-            <Mountain size={20} />
-            <span>WAYPOINT</span>
+            <JunkoLogo />
+            <span>JUNKO</span>
           </div>
           <OnlineBadge />
         </header>
@@ -210,13 +236,13 @@ export function Dashboard() {
         <section className="immersiveHero">
           <div className="heroCenter">
             <h1>
-              Text Waypoint.
+              Text Junko.
               <br />
               Get your trip planned.
             </h1>
             <p>
-              Waypoint is an iMessage-first expedition agent that plans routes, checks conditions, handles gear,
-              asks before payment, and sends you a final trip brief.
+              Junko is a friendly outdoor expedition companion that plans routes, checks conditions, handles gear,
+              asks before payment, and sends you a final adventure brief.
             </p>
             <div className="heroActions">
               <button className="primaryAction" onClick={() => setView("chat")}>
@@ -232,7 +258,7 @@ export function Dashboard() {
           <button
             className="downArrow"
             onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            title="Scroll to how Waypoint works"
+            title="Scroll to how Junko works"
           >
             {"\u2193"}
           </button>
@@ -244,8 +270,8 @@ export function Dashboard() {
               sendMessage();
             }}
           >
-            <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Text Waypoint..." />
-            <button type="submit" disabled={isSending || !message.trim()} title="Send to Waypoint">
+            <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Text Junko..." />
+            <button type="submit" disabled={isSending || !message.trim()} title="Send to Junko">
               <Send size={20} />
             </button>
           </form>
@@ -254,13 +280,13 @@ export function Dashboard() {
         <section id="how-it-works" ref={howRef} className={`immersiveHow ${howVisible ? "visible" : ""}`}>
           <div className="howIntro">
             <p>Simple, text-native expedition planning</p>
-            <h2>How Waypoint works</h2>
+            <h2>How Junko works</h2>
           </div>
           {[
-            ["Text your trip idea", "Tell Waypoint where you want to go, when, and your group size."],
-            ["Hermes plans the route", "The agent checks routes, conditions, permits, gear, and risk."],
-            ["Approve payment", "Waypoint asks before checkout or vendor booking."],
-            ["Get your trip brief", "Receive a final expedition plan with map links, gear, safety, and next steps."]
+            ["Text your trip idea", "Tell Junko where you want to go, when, and your group size."],
+            ["Junko maps the route", "She checks routes, conditions, permits, gear, and risk."],
+            ["Approve payment", "Junko asks before checkout or vendor booking."],
+            ["Get your adventure brief", "Receive a final expedition plan with map links, gear, safety, and next steps."]
           ].map(([title, body], index) => (
             <article key={title} className="howCard" style={{ "--card-index": index } as CSSProperties}>
               <span>{index + 1}</span>
@@ -283,28 +309,37 @@ export function Dashboard() {
             <ArrowLeft size={18} />
           </button>
           <div className="agentTitle">
-            <h1>Waypoint</h1>
-            <p>Hermes agent online</p>
+            <JunkoLogo size={46} />
+            <div>
+              <h1>Junko</h1>
+              <p>Junko is online</p>
+            </div>
           </div>
           <button className="roundIcon" onClick={resetDemo} title="Reset demo">
             <RefreshCcw size={17} />
           </button>
         </header>
 
+        <div className="progressRail">
+          {progress.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+
         <div className="chatOnlyWindow">
           {!snapshot?.messages.length ? (
             <div className="chatEmpty">
               <div className="emptyIcon">
-                <MessageCircle size={24} />
+                <JunkoLogo size={46} />
               </div>
               <h2>Start with a text.</h2>
-              <p>Try asking Waypoint to plan a weekend backpacking trip in Joshua Tree.</p>
+              <p>Try asking Junko to plan a weekend backpacking trip in Joshua Tree.</p>
             </div>
           ) : (
             snapshot.messages.map((item) => <ChatBubble key={item.id} message={item} />)
           )}
           {isSending && (
-            <div className="chatBubbleRow fromWaypoint">
+            <div className="chatBubbleRow fromJunko">
               <div className="typingBubble">
                 <span />
                 <span />
@@ -346,7 +381,7 @@ export function Dashboard() {
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder="Text Waypoint..."
+            placeholder="Text Junko..."
             rows={1}
           />
           <button type="submit" disabled={isSending || !message.trim()} title="Send">
@@ -360,7 +395,7 @@ export function Dashboard() {
           <div className="briefHeader">
             <div>
               <p>Shareable plan</p>
-              <h2>Your Expedition Brief</h2>
+              <h2>Your Adventure Brief</h2>
             </div>
             <button onClick={copyBrief}>
               {copied ? <Check size={17} /> : <Copy size={17} />}

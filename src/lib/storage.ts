@@ -24,17 +24,17 @@ export interface ConversationSnapshot {
   updatedAt: string;
 }
 
-const globalForDb = globalThis as typeof globalThis & { waypointHermesDb?: Database.Database };
+const globalForDb = globalThis as typeof globalThis & { junkoHermesDb?: Database.Database };
 
 function databasePath(): string {
-  const url = process.env.DATABASE_URL || "file:./.data/waypoint-hermes.sqlite";
+  const url = process.env.DATABASE_URL || "file:./.data/junko-hermes.sqlite";
   const filePath = url.startsWith("file:") ? url.slice(5) : url;
   return path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
 }
 
 function getDb(): Database.Database {
-  if (globalForDb.waypointHermesDb) {
-    return globalForDb.waypointHermesDb;
+  if (globalForDb.junkoHermesDb) {
+    return globalForDb.junkoHermesDb;
   }
 
   const dbPath = databasePath();
@@ -52,7 +52,7 @@ function getDb(): Database.Database {
       updated_at text not null
     );
   `);
-  globalForDb.waypointHermesDb = db;
+  globalForDb.junkoHermesDb = db;
   return db;
 }
 

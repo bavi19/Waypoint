@@ -79,11 +79,11 @@ export class MockHermesAgent implements HermesAgent {
       });
 
       const reply = [
-        "Approved. Hermes created the Stripe test checkout for the trip package.",
+        "Approved. I created the Stripe test checkout for your trip package.",
         "",
         `Checkout: ${checkout.checkoutUrl}`,
         "",
-        "USDC/stablecoin demo option is also prepared where supported. I will finalize booking confirmations after payment completion."
+        "I also prepared a USDC/stablecoin demo option where supported. Once payment is complete, I will pack the final confirmations into your adventure brief."
       ].join("\n");
       return { reply, state, toolCalls, messages: [...messages, hermesMessage(reply)] };
     }
@@ -109,21 +109,21 @@ export class MockHermesAgent implements HermesAgent {
       });
       const brief = await callTool("generate_final_expedition_brief", { route: state.selectedRoute?.id });
       state = updateStateTimestamp({ ...state, finalBrief: String(brief.brief) });
-      const reply = `Payment marked complete. Hermes booked the demo vendor payout and generated your final expedition brief:\n\n${brief.brief}`;
+      const reply = `Payment marked complete. I booked the demo vendor payout and packed your final adventure brief:\n\n${brief.brief}`;
       return { reply, state, toolCalls, messages: [...messages, hermesMessage(reply)] };
     }
 
     if (!state.destination || !hasPlanningInputs(state) || needsIntake(state).length) {
       const missing = needsIntake(state);
       const reply = [
-        "I can operate that Joshua Tree weekend plan. To build it safely, send me:",
+        "I can map out that Joshua Tree weekend. To make it something I would be excited to hike myself, send me:",
         missing.includes("dates") ? "- exact dates or weekend target" : "",
         missing.includes("group size") ? "- group size" : "",
         missing.includes("experience level") ? "- experience level: beginner, intermediate, or advanced" : "",
         missing.includes("budget") ? "- rough budget" : "",
         missing.includes("gear you already own") ? "- key gear you already own" : "",
         "",
-        "I will keep the route conservative, verify current conditions before departure, and avoid any illegal camping assumptions."
+        "I will keep the route conservative, check trail conditions and weather, and avoid any illegal camping assumptions."
       ].filter(Boolean).join("\n");
       return { reply, state, toolCalls, messages: [...messages, hermesMessage(reply)] };
     }
@@ -137,7 +137,7 @@ export class MockHermesAgent implements HermesAgent {
         .map((route, index) => `${index + 1}. ${route.name}: ${route.mileage}, ${route.summary}`)
         .join("\n");
       const reply = [
-        `Hermes built the first pass for ${plan.destination}. Pick a route option:`,
+        `I mapped out a first pass for ${plan.destination}. Pick the route you would be most excited to hike:`,
         "",
         routeList,
         "",
@@ -185,7 +185,7 @@ export class MockHermesAgent implements HermesAgent {
       const budgetLines = state.costBreakdown.map((item) => `- ${item.label}: ${formatCurrency(item.amountCents)}`).join("\n");
       const totalCents = state.costBreakdown.reduce((sum, item) => sum + item.amountCents, 0);
       const reply = [
-        `I ran logistics for ${selectedRoute.name}.`,
+        `I checked the latest demo conditions for ${selectedRoute.name} and built the logistics around a conservative desert margin.`,
         "",
         `Map: ${selectedRoute.mapLink}`,
         `Weather/risk: ${state.weatherRisk.riskLevel.toUpperCase()} - ${state.weatherRisk.forecast}`,
@@ -196,14 +196,14 @@ export class MockHermesAgent implements HermesAgent {
         budgetLines,
         `Total: ${formatCurrency(totalCents)}`,
         "",
-        "Reply yes or approve only if you want Hermes to create a Stripe test checkout. I will not charge without explicit approval."
+        "Reply yes or approve only if you want me to create a Stripe test checkout. I will not charge or book anything without your explicit go-ahead."
       ].join("\n");
       return { reply, state, toolCalls, messages: [...messages, hermesMessage(reply)] };
     }
 
     const reply = [
-      "Hermes is holding the trip plan. You can pick a route, approve payment, or tell me payment is complete for the final expedition brief.",
-      "Reminder: verify current conditions before departure and check official park alerts."
+      "I am holding the trip plan here. You can pick a route, approve payment, or tell me payment is complete so I can pack your final adventure brief.",
+      "Let’s make sure you’re ready for this adventure: verify current conditions before departure and check official park alerts."
     ].join("\n");
     return { reply, state, toolCalls, messages: [...messages, hermesMessage(reply)] };
   }

@@ -1,6 +1,6 @@
-# Waypoint Hermes
+# Junko
 
-Waypoint Hermes is an iMessage-first outdoor expedition agent for the Nous Hermes hackathon. The app is built around a Hermes agent runtime, not a plain chatbot: every message routes through the Hermes orchestrator, which decides what to ask, which tools to call, how to update expedition state, when to request payment approval, and when to generate the final expedition brief.
+Junko is an iMessage-first outdoor expedition companion for the Nous Hermes hackathon. The app is built around a Hermes agent runtime, not a plain chatbot: every message routes through the Hermes orchestrator, which decides what to ask, which tools to call, how to update expedition state, when to request payment approval, and when to generate the final adventure brief.
 
 ## Architecture
 
@@ -25,7 +25,7 @@ flowchart LR
 
 ## What Is Included
 
-- Next.js dashboard with Tailwind and a web chat simulator fallback.
+- Next.js app with Tailwind and a web chat simulator fallback.
 - TypeScript Hermes runtime with `HermesAgent`, `MockHermesAgent`, and `RealHermesAgent` placeholder adapter.
 - SQLite-backed conversation memory, expedition state, and tool call log.
 - Expedition tools for route search, map links, weather, fire/closure risk, permits, packing, missing gear, rentals, budget, Stripe Checkout, USDC copy, mock vendor payout, emergency plan, and final brief.
@@ -55,7 +55,7 @@ STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 WEATHER_API_KEY=
 MAPBOX_TOKEN=
-DATABASE_URL=file:./.data/waypoint-hermes.sqlite
+DATABASE_URL=file:./.data/junko-hermes.sqlite
 IMESSAGE_ALLOWED_SENDER=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -66,7 +66,7 @@ For a real Hermes API, set `HERMES_BASE_URL` and `HERMES_API_KEY`. The `RealHerm
 
 ## Demo Script
 
-Use the quick-reply buttons in the dashboard:
+Use the demo script in the chat:
 
 1. `Plan me a weekend backpacking trip in Joshua Tree.`
 2. `Upcoming weekend, group of 2, intermediate, budget $250. We own a tent, backpack, sleeping bag, and stove. We will drive.`
@@ -74,7 +74,7 @@ Use the quick-reply buttons in the dashboard:
 4. `approve`
 5. Click `Mark demo paid`, or text `payment complete`.
 
-Hermes will ask intake questions, propose routes, check conditions and permits, identify missing gear, create a budget, request approval before payment, create checkout, mock a vendor payout to `Joshua Tree Gear Rental Partner`, and generate the final expedition brief.
+Junko will ask intake questions, propose routes, check conditions and permits, identify missing gear, create a budget, request approval before payment, create checkout, mock a vendor payout to `Joshua Tree Gear Rental Partner`, and generate the final adventure brief.
 
 ## iMessage Relay
 
@@ -85,11 +85,11 @@ npm run dev
 IMESSAGE_ALLOWED_SENDER="+15555550123" npm run imessage:relay
 ```
 
-If the relay fails, use the dashboard simulator. It calls the same Hermes endpoint.
+If the relay fails, use the web chat simulator. It calls the same Hermes endpoint.
 
 ## Safety Guardrails
 
-Waypoint Hermes is deliberately conservative:
+Junko is deliberately conservative:
 
 - Does not suggest illegal camping.
 - Does not guarantee safety.

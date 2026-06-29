@@ -185,7 +185,7 @@ export const expeditionTools: ToolDefinition[] = [
         { label: "Gear rental", amountCents: cents(24 * missingGearCount), notes: "Joshua Tree Gear Rental Partner" },
         { label: "Food estimate", amountCents: cents(38), notes: "Two trail meals plus snacks per person estimate" },
         { label: "Fuel estimate", amountCents: cents(36), notes: "Round-trip driving estimate" },
-        { label: "Waypoint service fee", amountCents: cents(19), notes: "Trip operations and briefing" },
+        { label: "Junko service fee", amountCents: cents(19), notes: "Trip operations and briefing" },
         { label: "Optional trail donation", amountCents: cents(5), notes: "Demo donation line item" }
       ];
       return {
@@ -213,7 +213,7 @@ export const expeditionTools: ToolDefinition[] = [
     async run() {
       return {
         stablecoinInstructions:
-          "USDC payment option: demo copy only. In production, Waypoint would generate a wallet invoice where supported and reconcile on-chain payment before booking."
+          "USDC payment option: demo copy only. In production, Junko would generate a wallet invoice where supported and reconcile on-chain payment before booking."
       };
     }
   },
@@ -251,7 +251,7 @@ export const expeditionTools: ToolDefinition[] = [
       const route = state.selectedRoute || joshuaTreeRoutes[0];
       return {
         brief: [
-          `Powered by Hermes`,
+          `Packed by Junko`,
           ``,
           `Trip: ${route.name}`,
           `Dates: ${state.dates || "Upcoming weekend"}`,
